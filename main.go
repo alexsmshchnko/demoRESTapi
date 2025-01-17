@@ -45,6 +45,19 @@ func addUser(ctx *gin.Context) {
 }
 
 func patchUser(ctx *gin.Context) {
+	var err error
+	u := &User{}
+	if err = ctx.BindJSON(u); err != nil {
+		ctx.IndentedJSON(http.StatusBadRequest, err)
+		return
+	}
+	u.ID = ctx.Params.ByName("id")
+
+	if err = pg.updateUser(u); err != nil {
+		ctx.IndentedJSON(http.StatusInternalServerError, err)
+	} else {
+		ctx.IndentedJSON(http.StatusOK, u)
+	}
 }
 
 type db struct {
@@ -87,10 +100,20 @@ func (pg *db) getUser(id string) *User {
 }
 
 func (pg *db) addUser(u *User) (err error) {
-	if err = pg.QueryRow("INSERT INTO public.user (id, firstname, lastname, email, age, created) VALUES(gen_random_uuid(), $1, $2, $3, $4, now()) RETURNING id, created",
+	if err = pg.QueryRow("INSERT INTO public.user (id, firstname, lastname, email, age, created) VALUES (gen_random_uuid(), $1, $2, $3, $4, now()) RETURNING id, created",
 		u.Firstname, u.Lastname, u.Email, u.Age).Scan(&u.ID, &u.Created); err != nil {
 		fmt.Println(err)
 	}
+
+	return
+}
+
+func (pg *db) updateUser(u *User) (err error) {
+	if err = pg.QueryRow("UPDATE public.user SET firstname=$1, lastname=$2, email=$3, age=$4, created=now() WHERE id = $5 RETURNING created",
+		u.Firstname, u.Lastname, u.Email, u.Age, u.ID).Scan(&u.Created); err != nil {
+		fmt.Println(err)
+	}
+
 	return
 }
 
