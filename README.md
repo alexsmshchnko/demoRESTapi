@@ -4,10 +4,11 @@ golang study
 Задача:
 сделать REST API на Go для создания/удаления/редактирования юзеров. Любой framework (или без него). Запушить код на github. В идеале с unit тестами. БД - PostgreSQL. Запросы:
 
-POST /users - create user
-GET /user/<id> - get user
-PATCH /user/<id> - edit user
+* POST /users - create user
+* GET /user/<id> - get user
+* PATCH /user/<id> - edit user
 
+{code:json}
 type User struct {
   ID uuid
   Firstname string
@@ -16,6 +17,7 @@ type User struct {
   Age uint
   Created time.Time
 }
+{code}
 
 ID / Created генерим сами. Остальные - обязательны и валидируем на входе.
 
