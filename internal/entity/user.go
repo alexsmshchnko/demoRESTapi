@@ -1,6 +1,8 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID        string
@@ -9,4 +11,21 @@ type User struct {
 	Email     string
 	Age       uint
 	Created   time.Time
+}
+
+func (u *User) Validate() error {
+	if u.Firstname == "" {
+		return ErrEmptyFirstname
+	}
+	if u.Lastname == "" {
+		return ErrEmptyLastname
+	}
+	if u.Email == "" {
+		return ErrEmptyEmail
+	}
+	if u.Age == 0 {
+		return ErrEmptyAge
+	}
+
+	return nil
 }

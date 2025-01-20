@@ -9,6 +9,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// type UserGetter interface {
+// 	GetUser(id string) *entity.User
+// }
+// type UserSetter interface {
+// 	AddUser(u *entity.User) error
+// 	UpdateUser(u *entity.User) error
+// }
+
 type Repository struct {
 	*sql.DB
 }
