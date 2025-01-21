@@ -13,6 +13,10 @@ type User struct {
 	Created   time.Time
 }
 
+func NewUser() *User {
+	return &User{}
+}
+
 func (u *User) Validate() error {
 	if u.Firstname == "" {
 		return ErrEmptyFirstname

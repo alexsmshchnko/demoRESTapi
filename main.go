@@ -27,7 +27,7 @@ func getUser(ctx *gin.Context) {
 
 func addUser(ctx *gin.Context) {
 	var err error
-	u := &entity.User{}
+	u := entity.NewUser()
 	if err = ctx.BindJSON(u); err != nil {
 		ctx.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
@@ -42,7 +42,7 @@ func addUser(ctx *gin.Context) {
 
 func patchUser(ctx *gin.Context) {
 	var err error
-	u := &entity.User{}
+	u := entity.NewUser()
 	if err = ctx.BindJSON(u); err != nil {
 		ctx.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
