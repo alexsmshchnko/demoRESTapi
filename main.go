@@ -5,78 +5,51 @@ import (
 	"net/http"
 	"os"
 
-	repo "demorestapi/internal/adapter/repository"
-	"demorestapi/internal/entity"
+	repo "demorestapi/internal/adapters/repository"
+	ports "demorestapi/internal/ports"
 	service "demorestapi/internal/service"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
 )
 
-func getUser(ctx *gin.Context) {
-	u, err := srv.GetUser(ctx.Params.ByName("id"))
+// func setMiddlewares(router *chi.Mux) {
+// 	router.Use(middleware.RequestID)
+// 	router.Use(middleware.RealIP)
+// 	router.Use(logs.NewStructuredLogger(logrus.StandardLogger()))
+// 	router.Use(middleware.Recoverer)
 
-	if u == nil {
-		ctx.IndentedJSON(http.StatusBadRequest, err.Error())
-	} else if u.ID == "" {
-		ctx.IndentedJSON(http.StatusNotFound, "")
-	} else {
-		ctx.IndentedJSON(http.StatusOK, u)
-	}
-}
+// 	addCorsMiddleware(router)
+// 	addAuthMiddleware(router)
 
-func addUser(ctx *gin.Context) {
-	var err error
-	u := entity.NewUser()
-	if err = ctx.BindJSON(u); err != nil {
-		ctx.IndentedJSON(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if err = srv.AddUser(u); err != nil {
-		ctx.IndentedJSON(http.StatusInternalServerError, err.Error())
-	} else {
-		ctx.IndentedJSON(http.StatusOK, u)
-	}
-}
-
-func patchUser(ctx *gin.Context) {
-	var err error
-	u := entity.NewUser()
-	if err = ctx.BindJSON(u); err != nil {
-		ctx.IndentedJSON(http.StatusBadRequest, err.Error())
-		return
-	}
-	u.ID = ctx.Params.ByName("id")
-
-	if err = srv.UpdateUser(u); err != nil {
-		ctx.IndentedJSON(http.StatusInternalServerError, err.Error())
-	} else {
-		ctx.IndentedJSON(http.StatusOK, u)
-	}
-}
-
-var (
-	pg  repo.Repository
-	srv *service.Service
-)
+// 	router.Use(
+// 		middleware.SetHeader("X-Content-Type-Options", "nosniff"),
+// 		middleware.SetHeader("X-Frame-Options", "deny"),
+// 	)
+// 	router.Use(middleware.NoCache)
+// }
 
 func main() {
-	var err error
-	if pg, err = repo.ConnectDB(); err != nil {
+	pg, err := repo.ConnectDB()
+	if err != nil {
 		fmt.Println("connectDB error:", err)
 		os.Exit(1)
 	}
 
-	srv = service.NewService(&pg, &pg)
+	srv := service.NewService(&pg, &pg)
 
-	// gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
-	router.GET("/ping", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, gin.H{"message": "pong"}) })
+	h := ports.NewHttpServer(srv)
 
-	router.GET("/user/:id", getUser)
-	router.POST("/users", addUser)
-	router.PATCH("/user/:id", patchUser)
+	router := chi.NewRouter()
+	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("pong")) })
 
-	router.Run("localhost:8080")
+	// l := log.NewLogger()
+	// rl:= middleware.RequestLogger(  )
+	// router.Use(rl)
+
+	router.Get("/user/{id}", h.GetUser)
+	router.Post("/users", h.AddUser)
+	router.Patch("/user/{id}", h.PatchUser)
+
+	http.ListenAndServe("localhost:8080", router)
 }
