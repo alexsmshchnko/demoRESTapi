@@ -15,14 +15,14 @@ type UserSetter interface {
 }
 
 type Service struct {
-	UserGetter
-	UserSetter
+	ug UserGetter
+	us UserSetter
 }
 
 func NewService(ug UserGetter, us UserSetter) *Service {
 	return &Service{
-		UserGetter: ug,
-		UserSetter: us,
+		ug: ug,
+		us: us,
 	}
 }
 
@@ -30,7 +30,7 @@ func (s *Service) GetUser(id string) (*entity.User, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, err
 	}
-	return s.UserGetter.GetUser(id), nil
+	return s.ug.GetUser(id), nil
 }
 
 func (s *Service) AddUser(u *entity.User) error {
@@ -38,7 +38,7 @@ func (s *Service) AddUser(u *entity.User) error {
 		return err
 	}
 
-	return s.UserSetter.AddUser(u)
+	return s.us.AddUser(u)
 }
 
 func (s *Service) UpdateUser(u *entity.User) error {
@@ -46,5 +46,5 @@ func (s *Service) UpdateUser(u *entity.User) error {
 		return err
 	}
 
-	return s.UserSetter.UpdateUser(u)
+	return s.us.UpdateUser(u)
 }
