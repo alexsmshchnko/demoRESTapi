@@ -1,10 +1,12 @@
 package entity
 
-import "errors"
+import (
+	e "demorestapi/internal/common/errors"
+)
 
 var (
-	ErrEmptyFirstname = errors.New("validation error: empty Firstname")
-	ErrEmptyLastname  = errors.New("validation error: empty Lastname")
-	ErrEmptyEmail     = errors.New("validation error: Email is missing")
-	ErrEmptyAge       = errors.New("validation error: Age is not set")
+	ErrEmptyFirstname = e.NewIncorrectInputError("empty-firstname", "empty Firstname") // errors.New("validation error: empty Firstname")
+	ErrEmptyLastname  = e.NewIncorrectInputError("empty-lastname", "empty Lastname")
+	ErrEmptyEmail     = e.NewIncorrectInputError("email-is-missing", "Email is missing")
+	ErrEmptyAge       = e.NewIncorrectInputError("age-is-not-set", "Age is not set")
 )

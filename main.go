@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	repo "demorestapi/internal/adapter/repository"
 	"demorestapi/internal/entity"
-	repo "demorestapi/internal/repository"
 	service "demorestapi/internal/service"
 
 	"github.com/gin-gonic/gin"
