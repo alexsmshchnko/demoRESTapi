@@ -1,8 +1,14 @@
 package logs
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+)
 
-func NewLogger() *zap.Logger {
+type Logger struct {
+	Logger *zap.Logger
+}
+
+func NewLogger() *Logger {
 	config := zap.NewProductionConfig()
 	// config.DisableCaller = true
 	config.Level.SetLevel(zap.DebugLevel)
@@ -10,5 +16,6 @@ func NewLogger() *zap.Logger {
 	if err != nil {
 		panic(err)
 	}
-	return log
+
+	return &Logger{log}
 }

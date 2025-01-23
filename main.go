@@ -6,28 +6,14 @@ import (
 	"os"
 
 	repo "demorestapi/internal/adapters/repository"
+	log "demorestapi/internal/common/logs"
 	ports "demorestapi/internal/ports"
 	service "demorestapi/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
+	"moul.io/chizap"
 )
-
-// func setMiddlewares(router *chi.Mux) {
-// 	router.Use(middleware.RequestID)
-// 	router.Use(middleware.RealIP)
-// 	router.Use(logs.NewStructuredLogger(logrus.StandardLogger()))
-// 	router.Use(middleware.Recoverer)
-
-// 	addCorsMiddleware(router)
-// 	addAuthMiddleware(router)
-
-// 	router.Use(
-// 		middleware.SetHeader("X-Content-Type-Options", "nosniff"),
-// 		middleware.SetHeader("X-Frame-Options", "deny"),
-// 	)
-// 	router.Use(middleware.NoCache)
-// }
 
 func main() {
 	pg, err := repo.ConnectDB()
@@ -36,16 +22,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	srv := service.NewService(&pg, &pg)
+	l := log.NewLogger()
+
+	srv := service.NewService(&pg, &pg, l)
 
 	h := ports.NewHttpServer(srv)
-
 	router := chi.NewRouter()
-	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("pong")) })
 
-	// l := log.NewLogger()
-	// rl:= middleware.RequestLogger(  )
-	// router.Use(rl)
+	router.Use(chizap.New(l.Logger, &chizap.Opts{
+		WithReferer:   true,
+		WithUserAgent: true,
+	}))
+
+	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("pong")) })
 
 	router.Get("/user/{id}", h.GetUser)
 	router.Post("/users", h.AddUser)
