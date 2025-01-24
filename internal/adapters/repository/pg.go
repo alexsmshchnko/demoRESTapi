@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"demorestapi/internal/entity"
 
@@ -16,13 +17,22 @@ type Repository struct {
 func ConnectDB() (db Repository, err error) {
 	const (
 		host     = "localhost"
-		port     = 5430
+		port     = "5430"
 		user     = "postgres_user"
 		password = "postgres_password"
 		dbname   = "postgres_db"
 	)
 
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	pghost, f := os.LookupEnv("POSTGRES_HOST")
+	if !f {
+		pghost = host
+	}
+	pgport, f := os.LookupEnv("POSTGRES_PORT")
+	if !f {
+		pgport = port
+	}
+	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", pghost, pgport, user, password, dbname)
+	fmt.Println(psqlconn)
 
 	if db.DB, err = sql.Open("postgres", psqlconn); err != nil {
 		return

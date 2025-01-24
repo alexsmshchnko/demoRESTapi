@@ -1,26 +1,28 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres_container
+    container_name: postgres
     environment:
       POSTGRES_USER: postgres_user
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_DB: postgres_db
       PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      internal:
     ports:
-      - "5430:5432"
+      - "5431:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data/pgdata
     deploy:
       resources:
         limits:
           cpus: '0.50'
-          memory: 512M
+          memory: 128M
         reservations:
           cpus: '0.25'
-          memory: 256M
+          memory: 128M
     command: >
-      postgres -c max_connections=1000
+      postgres -c max_connections=10
                -c shared_buffers=256MB
                -c effective_cache_size=768MB
                -c maintenance_work_mem=64MB
@@ -36,6 +38,21 @@ services:
     tty: true
     stdin_open: true
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      internal:
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+
 volumes:
   pgdata:
     driver: local
+
+networks:
+  internal:

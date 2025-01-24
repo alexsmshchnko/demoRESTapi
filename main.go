@@ -40,5 +40,10 @@ func main() {
 	router.Post("/users", h.AddUser)
 	router.Patch("/user/{id}", h.PatchUser)
 
-	http.ListenAndServe("localhost:8080", router)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+
+	server.ListenAndServe()
 }
