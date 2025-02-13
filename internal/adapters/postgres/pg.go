@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
@@ -9,6 +9,13 @@ import (
 
 	_ "github.com/lib/pq"
 )
+
+// for mockgen
+type DataProvider interface {
+	GetUser(id string) *entity.User
+	AddUser(u *entity.User) error
+	UpdateUser(u *entity.User) error
+}
 
 type Repository struct {
 	*sql.DB

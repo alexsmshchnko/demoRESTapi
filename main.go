@@ -1,30 +1,31 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
-	repo "demorestapi/internal/adapters/repository"
+	pg "demorestapi/internal/adapters/postgres"
+	repository "demorestapi/internal/adapters/repository"
 	log "demorestapi/internal/common/logs"
 	ports "demorestapi/internal/ports"
 	service "demorestapi/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
+	"go.uber.org/zap"
 	"moul.io/chizap"
 )
 
 func main() {
-	pg, err := repo.ConnectDB()
-	if err != nil {
-		fmt.Println("connectDB error:", err)
-		os.Exit(1)
-	}
-
 	l := log.NewLogger()
 
-	srv := service.NewService(&pg, &pg, l)
+	db, err := pg.ConnectDB()
+	if err != nil {
+		l.Logger.Panic("connectDB error", zap.Error(err))
+	}
+
+	repo := repository.NewRepo(&db)
+
+	srv := service.NewService(repo, repo, l)
 
 	h := ports.NewHttpServer(srv)
 	router := chi.NewRouter()
