@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"errors"
 	"time"
 )
 
@@ -19,16 +20,16 @@ func NewUser() *User {
 
 func (u *User) Validate() error {
 	if u.Firstname == "" {
-		return ErrEmptyFirstname
+		return errors.New("empty Firstname")
 	}
 	if u.Lastname == "" {
-		return ErrEmptyLastname
+		return errors.New("empty Lasttname")
 	}
 	if u.Email == "" {
-		return ErrEmptyEmail
+		return errors.New("empty email")
 	}
 	if u.Age == 0 {
-		return ErrEmptyAge
+		return errors.New("age is not set")
 	}
 
 	return nil
