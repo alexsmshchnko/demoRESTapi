@@ -8,58 +8,77 @@ import (
 	"math/rand"
 )
 
-func producer(id int, ch chan<- int, wg *sync.WaitGroup) {
-	wg.Add(1)
-	defer wg.Done()
+type total struct {
+	mu sync.Mutex
+	n  int
+}
+
+func (t *total) add(n int) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	t.n += n
+}
+
+func produce(id int, ch chan<- int, t *total) {
+	waitProducer.Add(1)
+	defer waitProducer.Done()
 	for i := 0; i < id+2; i++ {
 		data := rand.Intn(100)
-		fmt.Printf("producer%d sent %d\n", id, data)
+		// fmt.Printf("producer%d sent %d\n", id, data)
+		t.add(1)
 		ch <- data
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 	}
 
 }
 
-func consumer(id int, ch <-chan int, wg *sync.WaitGroup) {
-	wg.Add(1)
-	defer wg.Done()
+func consumer(id int, ch <-chan int, t *total) {
+	waitConsumer.Add(1)
+	defer waitConsumer.Done()
 	for data := range ch {
-		fmt.Printf("consumer%d received %d\n", id, data)
-		time.Sleep(300 * time.Millisecond)
+		t.add(-1)
+		// v := data + 1
+		fmt.Printf("consumer%d received %d ", id, data)
+		time.Sleep(1 * time.Millisecond)
 	}
 }
+
+var (
+	waitProducer sync.WaitGroup
+	waitConsumer sync.WaitGroup
+)
 
 func main() {
-	var (
-		wgp sync.WaitGroup
-		wgc sync.WaitGroup
-		ok  bool
-	)
+	total := &total{}
 
 	ch := make(chan int, 5)
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 50; i++ {
 		i := i
-		time.Sleep(time.Millisecond)
-		go producer(i, ch, &wgp)
+		// time.Sleep(time.Millisecond)
+		go produce(i, ch, total)
 	}
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 20; i++ {
 		i := i
-		go consumer(i, ch, &wgc)
+		go consumer(i, ch, total)
 	}
 
-	wgp.Wait()
+	waitProducer.Wait()
 
-	_, ok = <-ch
-	fmt.Printf("is open %v\n", ok)
+	fmt.Printf("length before close: %d\n", len(ch))
 
 	close(ch)
 
-	wgc.Wait()
+	fmt.Printf("length after close: %d\n", len(ch))
 
-	_, ok = <-ch
-	fmt.Printf("is open %v\n", ok)
+	waitConsumer.Wait()
+
+	_, ok := <-ch
+	fmt.Printf("is open after all read? %v\n", ok)
+
+	fmt.Printf("balance: %d\n", total.n)
 
 	fmt.Printf("done")
 }
