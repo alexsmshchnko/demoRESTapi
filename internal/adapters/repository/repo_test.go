@@ -11,6 +11,8 @@ import (
 )
 
 func TestRepo_GetUser(t *testing.T) {
+	t.Parallel()
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -75,6 +77,8 @@ func TestRepo_GetUser(t *testing.T) {
 }
 
 func TestRepo_AddUser(t *testing.T) {
+	t.Parallel()
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -125,6 +129,8 @@ func TestRepo_AddUser(t *testing.T) {
 }
 
 func TestRepo_UpdateUser(t *testing.T) {
+	t.Parallel()
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

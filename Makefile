@@ -1,3 +1,7 @@
+test_race:
+	go env -w CGO_ENABLED=1
+	go test -count 1000 -race ./internal/adapters/repository
+
 run_dev:
 	go run main.go
 

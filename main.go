@@ -46,5 +46,7 @@ func main() {
 		Handler: router,
 	}
 
-	server.ListenAndServe()
+	if server.ListenAndServe() != nil {
+		l.Logger.Panic("server start error", zap.Error(err))
+	}
 }
