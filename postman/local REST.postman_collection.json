@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "edce9b2f-4b40-434d-96cc-1a952f83fc7b",
+		"_postman_id": "c2934746-37f1-4402-8a1e-dc301c4cd424",
 		"name": "local REST",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17490285"
@@ -8,6 +8,23 @@
 	"item": [
 		{
 			"name": "ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"pong\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -25,26 +42,24 @@
 			"response": []
 		},
 		{
-			"name": "get by id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:8080/user/a720ef45-3e01-4edf-a0a7-ba34feddb424",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"user",
-						"a720ef45-3e01-4edf-a0a7-ba34feddb424"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "add user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"ID\", pm.response.json().ID);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -72,6 +87,25 @@
 		},
 		{
 			"name": "update user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check response ID\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.ID).to.eql(pm.collectionVariables.get('ID'));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "PATCH",
 				"header": [],
@@ -85,17 +119,85 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/users",
+					"raw": "localhost:8080/user/{{ID}}",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"users"
+						"user",
+						"{{ID}}"
 					]
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "get by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check response ID\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.ID).to.eql(pm.collectionVariables.get('ID'));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/user/{{ID}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"{{ID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ID",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
