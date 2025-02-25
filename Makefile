@@ -10,3 +10,6 @@ stop_docker:
 
 run_docker: stop_docker
 	docker-compose up -d --no-deps --build
+
+rebuild_app:
+	docker-compose up -d --no-deps --build app
