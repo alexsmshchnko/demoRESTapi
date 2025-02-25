@@ -21,26 +21,24 @@ func (t *total) add(n int) {
 }
 
 func produce(id int, ch chan<- int, t *total) {
-	waitProducer.Add(1)
 	defer waitProducer.Done()
 	for i := 0; i < id+2; i++ {
 		data := rand.Intn(100)
 		// fmt.Printf("producer%d sent %d\n", id, data)
 		t.add(1)
 		ch <- data
-		time.Sleep(1 * time.Millisecond)
+		// time.Sleep(1 * time.Millisecond)
 	}
 
 }
 
 func consumer(id int, ch <-chan int, t *total) {
-	waitConsumer.Add(1)
 	defer waitConsumer.Done()
 	for data := range ch {
 		t.add(-1)
 		// v := data + 1
 		fmt.Printf("consumer%d received %d ", id, data)
-		time.Sleep(1 * time.Millisecond)
+		// time.Sleep(1 * time.Millisecond)
 	}
 }
 
@@ -54,16 +52,19 @@ func main() {
 
 	ch := make(chan int, 5)
 
-	for i := 0; i < 50; i++ {
-		i := i
-		// time.Sleep(time.Millisecond)
+	pl := 100
+	waitProducer.Add(pl)
+	for i := 0; i < pl; i++ {
 		go produce(i, ch, total)
 	}
 
-	for i := 0; i < 20; i++ {
-		i := i
+	cl := 100
+	waitConsumer.Add(cl)
+	for i := 0; i < cl; i++ {
 		go consumer(i, ch, total)
 	}
+
+	time.Sleep(1 * time.Microsecond)
 
 	waitProducer.Wait()
 
