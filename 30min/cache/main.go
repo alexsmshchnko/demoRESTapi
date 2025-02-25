@@ -95,9 +95,7 @@ func (c *Cache) Set(p Profile) {
 		orders[i] = &v
 	}
 
-	var profile Profile
-	profile.UUID = p.UUID
-	profile.Name = p.Name
+	profile := p
 	profile.Orders = orders
 
 	c.items[p.UUID] = &CacheItem{
@@ -108,10 +106,10 @@ func (c *Cache) Set(p Profile) {
 
 func (c *Cache) Cleanup() {
 	for range time.Tick(c.ttl) {
-		println("debug tick")
+		println("debug: tick")
 		for _, v := range c.items {
 			if v.expireAt.Before(time.Now()) {
-				println("debug delete")
+				println("debug: delete")
 				c.mu.Lock()
 				delete(c.items, v.UUID)
 				c.mu.Unlock()
@@ -128,13 +126,13 @@ func main() {
 	r, f := cache.Get(uuidToFind)
 	println(r.Name, r.Orders, f) //false
 
-	p := Profile{
+	p := &Profile{
 		UUID:   uuidToFind,
 		Name:   "user1",
-		Orders: []*Order{{UUID: "312", Value: "test1"}},
+		Orders: []*Order{{UUID: "321", Value: "test1"}},
 	}
 
-	cache.Set(p)
+	cache.Set(*p)
 
 	//check cache is isolated and safe
 	p.Name = "user0"
