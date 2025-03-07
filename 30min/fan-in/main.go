@@ -2,8 +2,8 @@ package main
 
 import "sync"
 
-func joinChannels(cIn ...<-chan (int)) (c0 chan (int)) {
-	c0 = make(chan (int))
+func joinChannels(cIn ...<-chan int) (c0 chan int) {
+	c0 = make(chan int)
 
 	go func() {
 		wg := &sync.WaitGroup{}
@@ -14,6 +14,7 @@ func joinChannels(cIn ...<-chan (int)) (c0 chan (int)) {
 			go func(wg *sync.WaitGroup, cIn <-chan int) {
 				for v := range cIn {
 					println("idx:", i, " val:", v)
+					c0 <- v
 				}
 				wg.Done()
 			}(wg, v)
@@ -27,9 +28,9 @@ func joinChannels(cIn ...<-chan (int)) (c0 chan (int)) {
 }
 
 func main() {
-	c1 := make(chan (int))
-	c2 := make(chan (int))
-	c3 := make(chan (int))
+	c1 := make(chan int)
+	c2 := make(chan int)
+	c3 := make(chan int)
 
 	go func() {
 		defer close(c1)
@@ -53,7 +54,7 @@ func main() {
 	}()
 
 	for num := range joinChannels(c1, c2, c3) {
-		println(num)
+		println("res", num)
 	}
 
 }
