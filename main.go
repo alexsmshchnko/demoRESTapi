@@ -15,6 +15,10 @@ import (
 	"moul.io/chizap"
 )
 
+// @title			Swagger Example demoAPI
+// @version		1.0
+// @description	This is a sample user server.
+// @termsOfService	http://swagger.io/terms/
 func main() {
 	l := log.NewLogger()
 
