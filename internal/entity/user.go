@@ -5,13 +5,15 @@ import (
 	"time"
 )
 
+// User model info
+// @Description User information
 type User struct {
-	ID        string
-	Firstname string
-	Lastname  string
-	Email     string
-	Age       uint
-	Created   time.Time
+	ID        string    `json:"id" example:"d1e1a2ca-9e08-4fe6-8fd8-bc71e499cb63" format:"uuid"`
+	Firstname string    `json:"firstname" example:"Doe"`
+	Lastname  string    `json:"lastname" example:"John"`
+	Email     string    `json:"email" example:"my@mail.com"`
+	Age       uint      `json:"age" example:"25"`
+	Created   time.Time `json:"created"`
 }
 
 func NewUser() *User {

@@ -1,0 +1,116 @@
+definitions:
+  entity.User:
+    description: User information
+    properties:
+      age:
+        example: 25
+        type: integer
+      created:
+        type: string
+      email:
+        example: my@mail.com
+        type: string
+      firstname:
+        example: Doe
+        type: string
+      id:
+        example: d1e1a2ca-9e08-4fe6-8fd8-bc71e499cb63
+        format: uuid
+        type: string
+      lastname:
+        example: John
+        type: string
+    type: object
+  ports.Error:
+    properties:
+      message:
+        description: Code    *string `json:"code,omitempty"`
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a sample user server.
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example demoAPI
+  version: "1.0"
+paths:
+  /user/{id}:
+    get:
+      description: get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ports.Error'
+      summary: Get user
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      description: update user record
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entity.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ports.Error'
+      summary: Update user
+      tags:
+      - user
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: add new user record
+      parameters:
+      - description: New user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entity.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ports.Error'
+      summary: Add new user
+      tags:
+      - user
+swagger: "2.0"

@@ -20,31 +20,38 @@ func run() error {
 		return err
 	}
 
-	defer resp.Body.Close()
 	doc, err := html.Parse(resp.Body)
+	resp.Body.Close()
 	if err != nil {
 		return err
 	}
 
-	s, err := extractURL(doc)
-	if err != nil {
-		return err
+	var extractURLs func(n *html.Node, pURL string) (s []string)
+	extractURLs = func(n *html.Node, pURL string) (s []string) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			for _, attr := range n.Attr {
+				if attr.Key == "href" {
+					if []rune(attr.Val)[0] == '/' {
+						s = append(s, pURL+attr.Val)
+					} else {
+						pURL = attr.Val
+						s = append(s, attr.Val)
+					}
+					// println(attr.Val)
+				}
+			}
+		}
+
+		for v := n.FirstChild; v != nil; v = v.NextSibling {
+			s = append(s, extractURLs(v, pURL)...)
+		}
+
+		return s
 	}
 
-	for _, v := range s {
+	for _, v := range extractURLs(doc, ULR_TO_PARSE) {
 		println(v)
 	}
 
 	return nil
-}
-
-func extractURL(n *html.Node) (s []string, err error) {
-	if n.Data == "a" {
-		println(n.Attr)
-	}
-	// for {
-
-	// }
-
-	return
 }
