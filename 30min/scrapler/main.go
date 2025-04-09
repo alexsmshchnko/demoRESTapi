@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"golang.org/x/net/html"
 )
@@ -15,7 +16,9 @@ func main() {
 }
 
 func run() error {
-	resp, err := http.Get(ULR_TO_PARSE)
+	client := http.Client{Timeout: 2 * time.Second}
+
+	resp, err := client.Get(ULR_TO_PARSE)
 	if err != nil {
 		return err
 	}
