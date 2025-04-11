@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"path"
 	"sync"
@@ -42,19 +43,20 @@ func run() error {
 		return s
 	}
 
-	var scrap func(c *http.Client, url string, wg *sync.WaitGroup) (err error)
+	type scrap_func func(c *http.Client, url string, wg *sync.WaitGroup) (err error)
+	var scrap scrap_func
 	scrap = func(c *http.Client, url string, wg *sync.WaitGroup) (err error) {
 		defer wg.Done()
 
 		resp, err := c.Get(url)
 		if err != nil {
-			return err
+			return fmt.Errorf("http Get error: %w", err)
 		}
+		defer resp.Body.Close()
 
 		doc, err := html.Parse(resp.Body)
-		resp.Body.Close()
 		if err != nil {
-			return err
+			return fmt.Errorf("html body parse error: %w", err)
 		}
 
 		uniquePath := make(map[string]interface{})
@@ -71,7 +73,11 @@ func run() error {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(ULRS_TO_PARSE))
 	for _, u := range ULRS_TO_PARSE {
-		go scrap(&client, u, wg)
+		go func(f scrap_func) {
+			if err := f(&client, u, wg); err != nil {
+				fmt.Printf("URL %s scrap error: %v\n", u, err)
+			}
+		}(scrap)
 	}
 
 	wg.Wait()
